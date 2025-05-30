@@ -1,0 +1,15 @@
+/Users/popovicimichael/retro-chat/Retro.Application/bin/Debug/net9.0/Retro.Application.deps.json
+/Users/popovicimichael/retro-chat/Retro.Application/bin/Debug/net9.0/Retro.Application.dll
+/Users/popovicimichael/retro-chat/Retro.Application/bin/Debug/net9.0/Retro.Application.pdb
+/Users/popovicimichael/retro-chat/Retro.Application/bin/Debug/net9.0/Retro.Domain.dll
+/Users/popovicimichael/retro-chat/Retro.Application/bin/Debug/net9.0/Retro.Domain.pdb
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.csproj.AssemblyReference.cache
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.AssemblyInfoInputs.cache
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.AssemblyInfo.cs
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.csproj.CoreCompileInputs.cache
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Ap.F9A5D610.Up2Date
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.dll
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/refint/Retro.Application.dll
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/Retro.Application.pdb
+/Users/popovicimichael/retro-chat/Retro.Application/obj/Debug/net9.0/ref/Retro.Application.dll
