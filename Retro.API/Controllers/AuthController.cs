@@ -21,13 +21,12 @@ namespace Retro.API.Controllers
       if (!ModelState.IsValid)
         return BadRequest(ModelState);
 
-      var success = await _userService.RegisterUserAsync(dto);
+      var result = await _userService.RegisterUserAsync(dto);
 
-      if (!success)
-        return BadRequest(new { message = "Email already in use." });
+      if (!result.IsSuccess)
+        return BadRequest(new { message = result.Error });
 
       return Ok(new { message = "User registered successfully." });
     }
   }
-
 }

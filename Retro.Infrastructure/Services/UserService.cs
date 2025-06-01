@@ -16,10 +16,11 @@ namespace Retro.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<bool> RegisterUserAsync(UserRegisterDto dto)
+        public async Task<Result> RegisterUserAsync(UserRegisterDto dto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                return false;
+                return Result.Failure("Email already in use.");
+
 
             using var hmac = new HMACSHA512();
 
@@ -36,7 +37,7 @@ namespace Retro.Infrastructure.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return true;
+            return Result.Success();
         }
     }
 }
