@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Retro.Infrastructure;
+using Retro.Infrastructure.Services;
+using Retro.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add controllers and swagger
 builder.Services.AddControllers();
