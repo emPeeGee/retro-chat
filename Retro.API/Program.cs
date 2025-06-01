@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Retro.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -41,6 +44,9 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
 
