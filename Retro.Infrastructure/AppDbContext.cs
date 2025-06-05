@@ -21,7 +21,6 @@ namespace Retro.Infrastructure
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.PasswordHash).IsRequired();
-                entity.Property(u => u.PasswordSalt).IsRequired();
                 entity.Property(u => u.CreatedAt).IsRequired();
             });
         }
