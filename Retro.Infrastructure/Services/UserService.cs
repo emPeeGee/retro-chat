@@ -39,7 +39,7 @@ namespace Retro.Infrastructure.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            user.PasswordHash = Encoding.UTF8.GetBytes(_passwordService.HashPassword(dto.Password));
+            user.PasswordHash = _passwordService.HashPassword(dto.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -78,7 +78,7 @@ namespace Retro.Infrastructure.Services
             if (user is null)
                 return Result<string>.Failure("Invalid credentials");
 
-            var result = _passwordService.VerifyPassword(Convert.ToBase64String(user.PasswordHash), dto.Password);
+            var result = _passwordService.VerifyPassword(user.PasswordHash, dto.Password);
             if (!result)
                 return Result<string>.Failure("Invalid credentials");
 
