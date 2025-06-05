@@ -10,10 +10,17 @@ namespace Retro.Infrastructure.Services
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordService _passwordService;
+        private readonly IConfiguration _config;
+        private readonly ITokenService _tokenService;
 
-        public UserService(AppDbContext context)
+
+        public UserService(AppDbContext context, IPasswordService passwordService, IConfiguration config, ITokenService tokenService)
         {
             _context = context;
+            _passwordService = passwordService;
+            _config = config;
+            _tokenService = tokenService;
         }
 
         public async Task<Result> RegisterUserAsync(UserRegisterDto dto)
@@ -37,7 +44,20 @@ namespace Retro.Infrastructure.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Result.Success();
+
+        public async Task<Result<string>> LoginUserAsync(UserLoginDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user is null)
+                return Result<string>.Failure("Invalid credentials");
+
+            var result = _passwordService.VerifyPassword(Convert.ToBase64String(user.PasswordHash), dto.Password);
+            if (!result)
+                return Result<string>.Failure("Invalid credentials");
+
+            var jwt = _tokenService.GenerateJwtToken(user.Id, user.Email);
+
+            return Result<string>.Success(jwt);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Retro.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<Result> RegisterUserAsync(UserRegisterDto dto);
+        Task<Result<Guid>> RegisterUserAsync(UserRegisterDto dto);
+        Task<Result<string>> LoginUserAsync(UserLoginDto dto);
     }
 }

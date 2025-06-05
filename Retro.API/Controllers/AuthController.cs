@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Retro.Application.Models;
 using Retro.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Retro.API.Controllers
 {
@@ -14,7 +15,6 @@ namespace Retro.API.Controllers
     {
       _userService = userService;
     }
-
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto dto)
     {
@@ -26,7 +26,30 @@ namespace Retro.API.Controllers
       if (!result.IsSuccess)
         return BadRequest(new { message = result.Error });
 
-      return Ok(new { message = "User registered successfully." });
+      return Ok(new { userId = result.Value });
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(UserLoginDto dto)
+    {
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var result = await _userService.LoginUserAsync(dto);
+
+      if (!result.IsSuccess)
+        return Unauthorized(new { message = result.Error });
+
+      return Ok(new { token = result.Value });
+    }
+
+    // [Authorize]
+    // [HttpGet("me")]
+    // public IActionResult GetMe()
+    // {
+    //   var email = User.FindFirstValue(ClaimTypes.Email);
+    //   return Ok(new { email });
+    // }
+
   }
 }
