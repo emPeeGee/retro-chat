@@ -2,8 +2,10 @@ using Retro.Application.Models;
 using Retro.Application.Interfaces;
 using Retro.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using System.Text;
+using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
+
 
 namespace Retro.Infrastructure.Services
 {
@@ -23,26 +25,51 @@ namespace Retro.Infrastructure.Services
             _tokenService = tokenService;
         }
 
-        public async Task<Result> RegisterUserAsync(UserRegisterDto dto)
+        public async Task<Result<Guid>> RegisterUserAsync(UserRegisterDto dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                return Result.Failure("Email already in use.");
-
-
-            using var hmac = new HMACSHA512();
+            var exists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+            if (exists)
+                return Result<Guid>.Failure("Email is already registered.");
 
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Username = dto.Username,
                 Email = dto.Email,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
-                PasswordSalt = hmac.Key,
+                Username = dto.Username,
                 CreatedAt = DateTime.UtcNow
             };
 
+            user.PasswordHash = Encoding.UTF8.GetBytes(_passwordService.HashPassword(dto.Password));
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            return Result<Guid>.Success(user.Id);
+        }
+
+        // public async Task<Result> RegisterUserAsync(UserRegisterDto dto)
+        // {
+        //     if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+        //         return Result.Failure("Email already in use.");
+
+
+        //     using var hmac = new HMACSHA512();
+
+        //     var user = new User
+        //     {
+        //         Id = Guid.NewGuid(),
+        //         Username = dto.Username,
+        //         Email = dto.Email,
+        //         PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
+        //         PasswordSalt = hmac.Key,
+        //         CreatedAt = DateTime.UtcNow
+        //     };
+
+        //     _context.Users.Add(user);
+        //     await _context.SaveChangesAsync();
+
+        //     return Result.Success();
+        // }
 
 
         public async Task<Result<string>> LoginUserAsync(UserLoginDto dto)
