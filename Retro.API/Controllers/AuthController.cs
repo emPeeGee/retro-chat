@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Retro.Application.Models;
 using Retro.Application.Interfaces;
@@ -42,14 +43,16 @@ namespace Retro.API.Controllers
 
       return Ok(new { token = result.Value });
     }
+    
+    
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      return Ok($"You are user {userId}");
+    }
 
-    // [Authorize]
-    // [HttpGet("me")]
-    // public IActionResult GetMe()
-    // {
-    //   var email = User.FindFirstValue(ClaimTypes.Email);
-    //   return Ok(new { email });
-    // }
 
   }
 }
