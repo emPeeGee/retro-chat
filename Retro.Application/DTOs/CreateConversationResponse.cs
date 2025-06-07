@@ -1,7 +1,7 @@
 namespace Retro.Application.DTOs;
 
 
-public class ConversationResponse
+public class CreateConversationResponse
 {
     public Guid Id { get; set; }
     public string? Title { get; set; }
