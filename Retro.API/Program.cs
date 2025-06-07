@@ -16,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
 
 
 builder.Services.Configure<JwtSettings>(
