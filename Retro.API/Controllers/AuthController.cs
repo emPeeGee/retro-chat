@@ -16,6 +16,7 @@ namespace Retro.API.Controllers
     {
       _userService = userService;
     }
+    
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto dto)
     {
@@ -52,7 +53,5 @@ namespace Retro.API.Controllers
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
       return Ok($"You are user {userId}");
     }
-
-
   }
 }

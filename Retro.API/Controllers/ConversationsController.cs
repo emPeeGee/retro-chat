@@ -45,4 +45,18 @@ public class ConversationsController : ControllerBase
 
         return Ok(result.Value);
     }
+    
+    
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var userId = User.GetUserId(); 
+        var result = await _conversationService.GetConversationByIdAsync(userId, id);
+    
+        if (result.IsSuccess == false)
+            return Forbid();
+
+        return Ok(result.Value);
+    }
 }

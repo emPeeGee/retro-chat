@@ -69,19 +69,6 @@ namespace Retro.Infrastructure.Services
             });
         }
 
-        // public async Task<Result<Conversation>> GetConversationByIdAsync(Guid conversationId)
-        // {
-        //     var conversation = await _db.Conversations
-        //         .Include(c => c.Participants)
-        //         .FirstOrDefaultAsync(c => c.Id == conversationId);
-        //
-        //     if (conversation == null)
-        //         return Result<Conversation>.Failure("Conversation not found");
-        //
-        //     return Result<Conversation>.Success(conversation);
-        // }
-
-            
         public async Task<Result<List<ConversationResponse>>> GetConversationsForUserAsync(Guid userId)
         {
             var conversations = await _db.ConversationParticipants
@@ -105,6 +92,34 @@ namespace Retro.Infrastructure.Services
             }).ToList();
 
             return Result<List<ConversationResponse>>.Success(response);
+        }
+        
+        public async Task<Result<ConversationResponse>> GetConversationByIdAsync(Guid userId, Guid conversationId)
+        {
+            var conversation = await _db.Conversations
+                .Include(c => c.Participants)
+                .ThenInclude(cp => cp.User)
+                .FirstOrDefaultAsync(c => c.Id == conversationId);
+
+            if (conversation == null)
+                return Result<ConversationResponse>.Failure("Conversation not found.");
+
+            var isParticipant = conversation.Participants.Any(p => p.UserId == userId);
+            if (!isParticipant)
+                return Result<ConversationResponse>.Failure("Access deniedd.");
+
+            var response = new ConversationResponse
+            {
+                Id = conversation.Id,
+                Title = conversation.Name,
+                Participants = conversation.Participants.Select(p => new ParticipantDto
+                {
+                    Id = p.User.Id,
+                    Email = p.User.Email
+                }).ToList()
+            };
+
+            return Result<ConversationResponse>.Success(response);
         }
 
     }
