@@ -16,11 +16,11 @@ namespace Retro.Infrastructure.Services
         }
         
         
-        public async Task<Result<ConversationResponse>> CreateConversationAsync(Guid currentUserId, CreateConversationRequest request)
+        public async Task<Result<CreateConversationResponse>> CreateConversationAsync(Guid currentUserId, CreateConversationRequest request)
         {
             // Ensure at least 1 other participant
             if (request.ParticipantUserIds == null || !request.ParticipantUserIds.Any())
-                return Result<ConversationResponse>.Failure("At least one participant is required.");
+                return Result<CreateConversationResponse>.Failure("At least one participant is required.");
 
             // Prevent duplicate direct chat
             if (!request.IsGroup && request.ParticipantUserIds.Count == 1)
@@ -37,7 +37,7 @@ namespace Retro.Infrastructure.Services
 
                 if (existing != null)
                 {
-                    return Result<ConversationResponse>.Failure("Direct conversation already exists.");
+                    return Result<CreateConversationResponse>.Failure("Direct conversation already exists.");
                 }
             }
 
@@ -60,7 +60,7 @@ namespace Retro.Infrastructure.Services
             _db.Conversations.Add(conversation);
             await _db.SaveChangesAsync();
 
-            return Result<ConversationResponse>.Success(new ConversationResponse
+            return Result<CreateConversationResponse>.Success(new CreateConversationResponse
             {
                 Id = conversation.Id,
                 Title = conversation.Name,
@@ -69,27 +69,42 @@ namespace Retro.Infrastructure.Services
             });
         }
 
-        public async Task<Result<Conversation>> GetConversationByIdAsync(Guid conversationId)
-        {
-            var conversation = await _db.Conversations
-                .Include(c => c.Participants)
-                .FirstOrDefaultAsync(c => c.Id == conversationId);
+        // public async Task<Result<Conversation>> GetConversationByIdAsync(Guid conversationId)
+        // {
+        //     var conversation = await _db.Conversations
+        //         .Include(c => c.Participants)
+        //         .FirstOrDefaultAsync(c => c.Id == conversationId);
+        //
+        //     if (conversation == null)
+        //         return Result<Conversation>.Failure("Conversation not found");
+        //
+        //     return Result<Conversation>.Success(conversation);
+        // }
 
-            if (conversation == null)
-                return Result<Conversation>.Failure("Conversation not found");
-
-            return Result<Conversation>.Success(conversation);
-        }
-
-        public async Task<Result<List<Conversation>>> GetUserConversationsAsync(Guid userId)
+            
+        public async Task<Result<List<ConversationResponse>>> GetConversationsForUserAsync(Guid userId)
         {
             var conversations = await _db.ConversationParticipants
-                .Include(cp => cp.Conversation)
                 .Where(cp => cp.UserId == userId)
+                .Include(cp => cp.Conversation)
+                .ThenInclude(c => c.Participants)
+                .ThenInclude(cp => cp.User)
                 .Select(cp => cp.Conversation)
+                .Distinct() 
                 .ToListAsync();
 
-            return Result<List<Conversation>>.Success(conversations);
+            var response = conversations.Select(c => new ConversationResponse
+            {
+                Id = c.Id,
+                Title = c.Name,
+                Participants = c.Participants.Select(p => new ParticipantDto
+                {
+                    Id = p.User.Id,
+                    Email = p.User.Email
+                }).ToList()
+            }).ToList();
+
+            return Result<List<ConversationResponse>>.Success(response);
         }
 
     }

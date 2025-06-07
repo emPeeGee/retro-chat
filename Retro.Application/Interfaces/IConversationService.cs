@@ -4,5 +4,6 @@ namespace Retro.Application.Interfaces;
 
 public interface IConversationService
 {
-    Task<Result<ConversationResponse>> CreateConversationAsync(Guid currentUserId, CreateConversationRequest request);
+    Task<Result<CreateConversationResponse>> CreateConversationAsync(Guid currentUserId, CreateConversationRequest request);
+    Task<Result<List<ConversationResponse>>> GetConversationsForUserAsync(Guid userId);
 }
