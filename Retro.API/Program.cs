@@ -17,6 +17,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 
 builder.Services.Configure<JwtSettings>(

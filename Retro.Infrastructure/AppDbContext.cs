@@ -8,6 +8,8 @@ namespace Retro.Infrastructure
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
+        
+        public DbSet<Message> Messages { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
