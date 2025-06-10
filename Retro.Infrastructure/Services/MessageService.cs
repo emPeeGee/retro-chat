@@ -67,7 +67,9 @@ public class MessageService : IMessageService
             OriginalContent = m.OriginalContent,
             SenderId = m.SenderId,
             ConversationId = m.ConversationId,
-            SentAt = m.SentAt
+            SentAt = m.SentAt,
+            EditedAt = m.EditedAt,
+            IsDeleted = m.IsDeleted,
         }).ToList();
 
         return Result<List<MessageDto>>.Success(messageDtos);
