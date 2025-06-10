@@ -103,7 +103,8 @@ public class MessageService : IMessageService
             SentAt = message.SentAt,
             EditedAt = message.EditedAt,
             IsDeleted = message.IsDeleted,
-            OriginalContent = message.OriginalContent
+            OriginalContent = message.OriginalContent,
+            ConversationId = message.ConversationId
         });
     }
     
@@ -112,14 +113,15 @@ public class MessageService : IMessageService
     {
         var message = await _db.Messages.FindAsync(messageId);
 
-        if (message == null)
+        if (message == null || message.IsDeleted)
             return Result<MessageDto>.Failure("Message not found.");
 
         if (message.SenderId != userId)
             return Result<MessageDto>.Failure("You are not allowed to delete this message.");
 
         message.IsDeleted = true;
-        message.Content = "This message has been deleted."; // Soft-delete phrasing
+        message.OriginalContent = message.Content;
+        message.Content = "This message has been deleted."; 
         message.EditedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -136,6 +138,3 @@ public class MessageService : IMessageService
         });
     }
 }
-
-// todo: original content  in deleted message and isDeleted flag
-// todo: return isDeleted with all messages
