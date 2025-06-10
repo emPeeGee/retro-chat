@@ -38,6 +38,7 @@ public class MessageService : IMessageService
         {
             Id = message.Id,
             Content = message.Content,
+            OriginalContent = message.OriginalContent,
             SenderId = message.SenderId,
             ConversationId = message.ConversationId,
             SentAt = message.SentAt
@@ -63,6 +64,7 @@ public class MessageService : IMessageService
         {
             Id = m.Id,
             Content = m.Content,
+            OriginalContent = m.OriginalContent,
             SenderId = m.SenderId,
             ConversationId = m.ConversationId,
             SentAt = m.SentAt
@@ -70,4 +72,68 @@ public class MessageService : IMessageService
 
         return Result<List<MessageDto>>.Success(messageDtos);
     }
+    
+    public async Task<Result<MessageDto>> EditMessageAsync(Guid userId, EditMessageRequest request)
+    {
+        var message = await _db.Messages.FindAsync(request.MessageId);
+
+        if (message == null)
+            return Result<MessageDto>.Failure("Message not found.");
+
+        if (message.SenderId != userId)
+            return Result<MessageDto>.Failure("You are not allowed to edit this message.");
+
+        if ((DateTime.UtcNow - message.SentAt).TotalMinutes > 15)
+            return Result<MessageDto>.Failure("You can only edit a message within 15 minutes of sending.");
+
+        // Preserve original
+        message.OriginalContent ??= message.Content;
+        message.Content = request.NewContent;
+        message.EditedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return Result<MessageDto>.Success(new MessageDto
+        {
+            Id = message.Id,
+            Content = message.Content,
+            SenderId = message.SenderId,
+            SentAt = message.SentAt,
+            EditedAt = message.EditedAt,
+            IsDeleted = message.IsDeleted,
+            OriginalContent = message.OriginalContent
+        });
+    }
+    
+    
+    public async Task<Result<MessageDto>> DeleteMessageAsync(Guid userId, Guid messageId)
+    {
+        var message = await _db.Messages.FindAsync(messageId);
+
+        if (message == null)
+            return Result<MessageDto>.Failure("Message not found.");
+
+        if (message.SenderId != userId)
+            return Result<MessageDto>.Failure("You are not allowed to delete this message.");
+
+        message.IsDeleted = true;
+        message.Content = "This message has been deleted."; // Soft-delete phrasing
+        message.EditedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return Result<MessageDto>.Success(new MessageDto
+        {
+            Id = message.Id,
+            Content = message.Content,
+            SenderId = message.SenderId,
+            SentAt = message.SentAt,
+            EditedAt = message.EditedAt,
+            IsDeleted = message.IsDeleted,
+            OriginalContent = message.OriginalContent
+        });
+    }
 }
+
+// todo: original content  in deleted message and isDeleted flag
+// todo: return isDeleted with all messages

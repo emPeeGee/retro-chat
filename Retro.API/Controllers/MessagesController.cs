@@ -42,4 +42,34 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
+    
+    
+    [Authorize]
+    [HttpPut("edit")]
+    public async Task<IActionResult> EditMessage([FromBody] EditMessageRequest request)
+    {
+        var userId = User.GetUserId();
+
+        var result = await _messageService.EditMessageAsync(userId, request);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
+    
+    
+    [Authorize]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteMessage(Guid id)
+    {
+        var userId = User.GetUserId();
+
+        var result = await _messageService.DeleteMessageAsync(userId, id);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
 }
