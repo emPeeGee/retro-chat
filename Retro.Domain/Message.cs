@@ -16,4 +16,5 @@ public class Message
 
     public Guid ConversationId { get; set; }
     public Conversation Conversation { get; set; }
+    public ICollection<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
 }

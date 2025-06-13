@@ -72,4 +72,27 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
+    
+    
+    
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> AddReaction(CreateMessageReactionRequest request)
+    {
+        var userId = User.GetUserId();
+        var result = await _messageService.AddReactionAsync(userId, request);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
+
+    // [HttpGet("{messageId:guid}")]
+    // [Authorize]
+    // public async Task<IActionResult> GetReactions(Guid messageId)
+    // {
+    //     var result = await _messageReactionService.GetReactionsAsync(messageId);
+    //     return Ok(result.Data);
+    // }
 }

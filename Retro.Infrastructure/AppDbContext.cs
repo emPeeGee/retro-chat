@@ -10,6 +10,9 @@ namespace Retro.Infrastructure
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
         
         public DbSet<Message> Messages { get; set; }
+        
+        public DbSet<MessageReaction> MessageReactions { get; set; }
+        public DbSet<EmojiReaction> EmojiReactions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -40,6 +43,37 @@ namespace Retro.Infrastructure
                 .HasOne(cp => cp.Conversation)
                 .WithMany(c => c.Participants)
                 .HasForeignKey(cp => cp.ConversationId);
+            
+            
+            modelBuilder.Entity<MessageReaction>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+
+                entity.HasOne(r => r.Message)
+                    .WithMany(m => m.Reactions)
+                    .HasForeignKey(r => r.MessageId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.User)
+                    .WithMany() 
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.EmojiReaction)
+                    .WithMany(rt => rt.MessageReactions)
+                    .HasForeignKey(r => r.EmojiReactionId)
+                    .OnDelete(DeleteBehavior.Restrict); // Prevent accidental deletion
+            });
+
+            modelBuilder.Entity<EmojiReaction>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+                entity.HasIndex(rt => rt.Name).IsUnique(); // enforce unique names
+            }); 
+            
+            
+            
+            
             
             // modelBuilder.Entity<ConversationParticipant>()
             //     .HasOne(cp => cp.User)
