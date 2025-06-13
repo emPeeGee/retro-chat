@@ -56,6 +56,7 @@ public class MessageService : IMessageService
             return Result<List<MessageDto>>.Failure("Access denied.");
 
         var messages = await _db.Messages
+            .Include(m => m.Reactions)
             .Where(m => m.ConversationId == conversationId)
             .OrderBy(m => m.SentAt)
             .ToListAsync();
@@ -70,6 +71,15 @@ public class MessageService : IMessageService
             SentAt = m.SentAt,
             EditedAt = m.EditedAt,
             IsDeleted = m.IsDeleted,
+            Reactions = m.Reactions.Select(r => new MessageReactionDto
+            {
+                Id = r.Id,
+                EmojiReactionId = r.EmojiReactionId,
+                UserId = r.UserId,
+                MessageId = r.MessageId,
+                CreatedAt = r.CreatedAt,
+            }).ToList()
+            
         }).ToList();
 
         return Result<List<MessageDto>>.Success(messageDtos);
@@ -183,27 +193,38 @@ public class MessageService : IMessageService
             Id = existingReaction?.Id ?? Guid.NewGuid(),
             UserId = userId,
             MessageId = request.MessageId,
-            Reaction = reactionType.ToString(),
+            EmojiReactionId = request.ReactionId,
             CreatedAt = DateTime.UtcNow
         });
     }
     
 
-    public async Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid messageId)
+    public async Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid userId, Guid messageId)
     {
-    //     var reactions = await _db.MessageReactions
-    //         .Where(r => r.MessageId == messageId)
-    //         .Select(r => new MessageReactionDto
-    //         {
-    //             Id = r.Id,
-    //             UserId = r.UserId,
-    //             MessageId = r.MessageId,
-    //             Reaction = r.Reaction.ToString(),
-    //             CreatedAt = r.CreatedAt
-    //         })
-    //         .ToListAsync();
-    //
-    // return Result<List<MessageReactionDto>>.Success();
-    return Result<List<MessageReactionDto>>.Failure("Fail");
+        var message = await _db.Messages
+            .FirstOrDefaultAsync(m => m.Id == messageId);
+
+        if (message == null)
+            return Result<List<MessageReactionDto>>.Failure("Message not found.");
+
+        var isParticipant = await _db.ConversationParticipants
+            .AnyAsync(cp => cp.UserId == userId && cp.ConversationId == message.ConversationId);
+
+        if (!isParticipant)
+            return Result<List<MessageReactionDto>>.Failure("User is not a participant in this conversation.");
+        
+        var reactions = await _db.MessageReactions
+            .Where(r => r.MessageId == messageId)
+            .Select(r => new MessageReactionDto
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                MessageId = r.MessageId,
+                EmojiReactionId = r.EmojiReaction.Id,
+                CreatedAt = r.CreatedAt
+            })
+            .ToListAsync();
+    
+    return Result<List<MessageReactionDto>>.Success(reactions);
     }
 }

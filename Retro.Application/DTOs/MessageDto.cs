@@ -11,4 +11,5 @@ public class MessageDto
     public DateTime SentAt { get; set; }
     public DateTime? EditedAt { get; set; }
     public bool IsDeleted { get; set; }
+    public List<MessageReactionDto>? Reactions { get; set; }
 }

@@ -11,5 +11,6 @@ public interface IMessageService
     
     
     Task<Result<MessageReactionDto>> AddReactionAsync(Guid userId, CreateMessageReactionRequest request);
-    Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid messageId);
+    Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid userId, Guid messageId);
+    
 }

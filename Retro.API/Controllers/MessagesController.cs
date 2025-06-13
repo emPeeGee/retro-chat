@@ -75,7 +75,7 @@ public class MessagesController : ControllerBase
     
     
     
-    [HttpPost]
+    [HttpPost("reaction")]
     [Authorize]
     public async Task<IActionResult> AddReaction(CreateMessageReactionRequest request)
     {
@@ -88,11 +88,17 @@ public class MessagesController : ControllerBase
         return Ok(result.Value);
     }
 
-    // [HttpGet("{messageId:guid}")]
-    // [Authorize]
-    // public async Task<IActionResult> GetReactions(Guid messageId)
-    // {
-    //     var result = await _messageReactionService.GetReactionsAsync(messageId);
-    //     return Ok(result.Data);
-    // }
+    [HttpGet("reactions/{messageId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetMessageReactions(Guid messageId)
+    {
+        var userId = User.GetUserId();
+        var result = await _messageService.GetReactionsAsync(userId, messageId);
+        // TODO: validation, if a public group, get without validation, otherwise with
+        
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+        
+        return Ok(result.Value);
+    }
 }
