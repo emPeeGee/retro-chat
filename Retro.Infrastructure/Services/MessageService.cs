@@ -172,6 +172,7 @@ public class MessageService : IMessageService
                 MessageId = request.MessageId,
                 UserId = userId,
                 EmojiReactionId = request.ReactionId,
+                CreatedAt = DateTime.UtcNow,
             };
             _db.MessageReactions.Add(reaction);
         }

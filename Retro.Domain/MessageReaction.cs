@@ -6,6 +6,7 @@ public class MessageReaction
     public Guid MessageId { get; set; }
     public Guid UserId { get; set; }
     public int EmojiReactionId { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public Message Message { get; set; } 
     public User User { get; set; }
