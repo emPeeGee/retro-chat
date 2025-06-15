@@ -49,6 +49,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<MessageReaction>(entity =>
         {
             entity.HasKey(r => r.Id);
+            entity.HasIndex(r => new { r.MessageId, r.UserId, r.EmojiReactionId })
+                .IsUnique();
 
             entity.HasOne(r => r.Message)
                 .WithMany(m => m.Reactions)

@@ -225,30 +225,30 @@ public class MessageService : IMessageService
         if (reactionType == null)
             return Result<MessageReactionResponse>.Failure("Invalid reaction type.");
 
+
         var existingReaction = await _db.MessageReactions
-            .FirstOrDefaultAsync(r => r.MessageId == request.MessageId && r.UserId == userId);
+            .AnyAsync(r =>
+                r.UserId == userId && r.MessageId == request.MessageId && r.EmojiReactionId == request.ReactionId);
 
-        if (existingReaction != null)
-        {
-            existingReaction.EmojiReactionId = request.ReactionId; // User changes reaction
-        }
-        else
-        {
-            var reaction = new MessageReaction
-            {
-                Id = Guid.NewGuid(),
-                MessageId = request.MessageId,
-                UserId = userId,
-                EmojiReactionId = request.ReactionId,
-                CreatedAt = DateTime.UtcNow
-            };
-            _db.MessageReactions.Add(reaction);
-        }
 
+        if (existingReaction)
+            return Result<MessageReactionResponse>.Failure("You have already reacted with this emoji.");
+
+        var reaction = new MessageReaction
+        {
+            Id = Guid.NewGuid(),
+            MessageId = request.MessageId,
+            UserId = userId,
+            EmojiReactionId = request.ReactionId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.MessageReactions.Add(reaction);
         await _db.SaveChangesAsync();
+
         return Result<MessageReactionResponse>.Success(new MessageReactionResponse
         {
-            Id = existingReaction?.Id ?? Guid.NewGuid(),
+            Id = reaction.Id,
             UserId = userId,
             MessageId = request.MessageId,
             EmojiReactionId = request.ReactionId,
@@ -256,6 +256,20 @@ public class MessageService : IMessageService
         });
     }
 
+    public async Task<Result<bool>> RemoveReactionAsync(Guid userId, Guid messageId, int emojiReactionId)
+    {
+        var reaction = await _db.MessageReactions
+            .FirstOrDefaultAsync(r =>
+                r.UserId == userId && r.MessageId == messageId && r.EmojiReactionId == emojiReactionId);
+
+        if (reaction == null)
+            return Result<bool>.Failure("Reaction not found.");
+
+        _db.MessageReactions.Remove(reaction);
+        await _db.SaveChangesAsync();
+
+        return Result<bool>.Success(true);
+    }
 
     public async Task<Result<List<MessageReactionResponse>>> GetReactionsAsync(Guid userId, Guid messageId)
     {

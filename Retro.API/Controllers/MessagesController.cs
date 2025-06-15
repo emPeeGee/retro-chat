@@ -101,6 +101,18 @@ public class MessagesController : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpDelete("reactions/{messageId}/{emojiReactionId:int}")]
+    public async Task<IActionResult> RemoveReaction(Guid messageId, int emojiReactionId)
+    {
+        var userId = User.GetUserId();
+        var result = await _messageService.RemoveReactionAsync(userId, messageId, emojiReactionId);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok();
+    }
+
 
     [HttpPost("{id}/read")]
     public async Task<IActionResult> MarkAsRead(Guid id)

@@ -11,6 +11,7 @@ public interface IMessageService
 
 
     Task<Result<MessageReactionResponse>> AddReactionAsync(Guid userId, CreateMessageReactionRequest request);
+    Task<Result<bool>> RemoveReactionAsync(Guid userId, Guid messageId, int emojiReactionId);
     Task<Result<List<MessageReactionResponse>>> GetReactionsAsync(Guid userId, Guid messageId);
 
 
