@@ -1,11 +1,9 @@
 using Retro.Application.Models;
-using System.Threading.Tasks;
 
-namespace Retro.Application.Interfaces
+namespace Retro.Application.Interfaces;
+
+public interface IUserService
 {
-    public interface IUserService
-    {
-        Task<Result<Guid>> RegisterUserAsync(UserRegisterDto dto);
-        Task<Result<string>> LoginUserAsync(UserLoginDto dto);
-    }
+    Task<Result<Guid>> RegisterUserAsync(UserRegisterDto dto);
+    Task<Result<string>> LoginUserAsync(UserLoginDto dto);
 }

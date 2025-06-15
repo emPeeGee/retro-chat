@@ -1,6 +1,5 @@
 namespace Retro.Application.DTOs;
 
-
 public class MessageDto
 {
     public Guid Id { get; set; }

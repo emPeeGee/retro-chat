@@ -1,14 +1,13 @@
-namespace Retro.Domain
+namespace Retro.Domain;
+
+public class User
 {
-    public class User
-    {
-        public Guid Id { get; set; }
-        public string Username { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public string PasswordHash { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
-        
-        
-        public ICollection<ConversationParticipant> ConversationParticipants { get; set; } = new List<ConversationParticipant>();
-    }
+    public Guid Id { get; set; }
+    public string Username { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
+    public DateTime CreatedAt { get; set; }
+
+    public ICollection<ConversationParticipant> ConversationParticipants { get; set; } =
+        new List<ConversationParticipant>();
 }

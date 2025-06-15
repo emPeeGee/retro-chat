@@ -6,8 +6,6 @@ public class ConversationParticipant
     public Guid UserId { get; set; }
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation
     public Conversation Conversation { get; set; } = default!;
     public User User { get; set; } = default!;
 }
-    

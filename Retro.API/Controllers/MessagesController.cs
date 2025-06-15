@@ -1,8 +1,8 @@
-using Retro.Application.DTOs;
-using Retro.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Retro.Application.DTOs;
 using Retro.Application.Helpers;
+using Retro.Application.Interfaces;
 
 namespace Retro.API.Controllers;
 
@@ -21,7 +21,7 @@ public class MessagesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> SendMessage([FromBody] CreateMessageRequest request)
     {
-        var userId = User.GetUserId(); 
+        var userId = User.GetUserId();
         var result = await _messageService.SendMessageAsync(userId, request);
 
         if (result.IsSuccess == false)
@@ -33,7 +33,7 @@ public class MessagesController : ControllerBase
     [HttpGet("{conversationId:guid}")]
     public async Task<IActionResult> GetMessages(Guid conversationId)
     {
-        var userId = User.GetUserId(); 
+        var userId = User.GetUserId();
 
         var result = await _messageService.GetMessagesAsync(userId, conversationId);
 
@@ -42,8 +42,8 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
-    
-    
+
+
     [Authorize]
     [HttpPut("edit")]
     public async Task<IActionResult> EditMessage([FromBody] EditMessageRequest request)
@@ -57,8 +57,8 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
-    
-    
+
+
     [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteMessage(Guid id)
@@ -72,9 +72,8 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
-    
-    
-    
+
+
     [HttpPost("reaction")]
     [Authorize]
     public async Task<IActionResult> AddReaction(CreateMessageReactionRequest request)
@@ -95,10 +94,10 @@ public class MessagesController : ControllerBase
         var userId = User.GetUserId();
         var result = await _messageService.GetReactionsAsync(userId, messageId);
         // TODO: validation, if a public group, get without validation, otherwise with
-        
+
         if (!result.IsSuccess)
             return BadRequest(result.Error);
-        
+
         return Ok(result.Value);
     }
 }

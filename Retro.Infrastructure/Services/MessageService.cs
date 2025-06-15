@@ -14,7 +14,7 @@ public class MessageService : IMessageService
         _db = db;
     }
 
-    
+
     public async Task<Result<MessageDto>> SendMessageAsync(Guid userId, CreateMessageRequest request)
     {
         var isParticipant = await _db.ConversationParticipants
@@ -77,14 +77,13 @@ public class MessageService : IMessageService
                 EmojiReactionId = r.EmojiReactionId,
                 UserId = r.UserId,
                 MessageId = r.MessageId,
-                CreatedAt = r.CreatedAt,
+                CreatedAt = r.CreatedAt
             }).ToList()
-            
         }).ToList();
 
         return Result<List<MessageDto>>.Success(messageDtos);
     }
-    
+
     public async Task<Result<MessageDto>> EditMessageAsync(Guid userId, EditMessageRequest request)
     {
         var message = await _db.Messages.FindAsync(request.MessageId);
@@ -117,8 +116,8 @@ public class MessageService : IMessageService
             ConversationId = message.ConversationId
         });
     }
-    
-    
+
+
     public async Task<Result<MessageDto>> DeleteMessageAsync(Guid userId, Guid messageId)
     {
         var message = await _db.Messages.FindAsync(messageId);
@@ -131,7 +130,7 @@ public class MessageService : IMessageService
 
         message.IsDeleted = true;
         message.OriginalContent = message.Content;
-        message.Content = "This message has been deleted."; 
+        message.Content = "This message has been deleted.";
         message.EditedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -147,8 +146,8 @@ public class MessageService : IMessageService
             OriginalContent = message.OriginalContent
         });
     }
-    
-    
+
+
     public async Task<Result<MessageReactionDto>> AddReactionAsync(Guid userId, CreateMessageReactionRequest request)
     {
         var message = await _db.Messages
@@ -182,7 +181,7 @@ public class MessageService : IMessageService
                 MessageId = request.MessageId,
                 UserId = userId,
                 EmojiReactionId = request.ReactionId,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
             _db.MessageReactions.Add(reaction);
         }
@@ -197,7 +196,7 @@ public class MessageService : IMessageService
             CreatedAt = DateTime.UtcNow
         });
     }
-    
+
 
     public async Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid userId, Guid messageId)
     {
@@ -212,7 +211,7 @@ public class MessageService : IMessageService
 
         if (!isParticipant)
             return Result<List<MessageReactionDto>>.Failure("User is not a participant in this conversation.");
-        
+
         var reactions = await _db.MessageReactions
             .Where(r => r.MessageId == messageId)
             .Select(r => new MessageReactionDto
@@ -224,7 +223,7 @@ public class MessageService : IMessageService
                 CreatedAt = r.CreatedAt
             })
             .ToListAsync();
-    
-    return Result<List<MessageReactionDto>>.Success(reactions);
+
+        return Result<List<MessageReactionDto>>.Success(reactions);
     }
 }

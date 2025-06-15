@@ -32,7 +32,6 @@ public class ConversationsController : ControllerBase
         return CreatedAtAction(nameof(Create), new { id = result.Value.Id }, result.Value);
     }
     
-    
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetAll()
@@ -45,7 +44,6 @@ public class ConversationsController : ControllerBase
 
         return Ok(result.Value);
     }
-    
     
     [HttpGet("{id}")]
     [Authorize]
