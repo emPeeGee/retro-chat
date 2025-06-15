@@ -1,0 +1,37 @@
+### Add new message
+POST /api/messages/ HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Host: localhost:5004
+
+{
+  "content": "Hello there",
+  "conversationId": "bf9a8dad-67b1-4937-a25b-cbbdd2b6012d"
+}
+
+### Get all messages for conv
+GET /api/conversations HTTP/1.1
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+### Edit message
+PUT /api/messages/edit HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+{
+  "messageId": "187ea9c5-6a8d-4514-ba8c-1fa8e7d47033",
+  "newContent": "222222bbbbbb"
+}
+
+### Delete message
+DELETE /api/messages/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+{
+  "messageId": "187ea9c5-6a8d-4514-ba8c-1fa8e7d47033",
+  "newContent": "222222bbbbbb"
+}

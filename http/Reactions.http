@@ -1,0 +1,18 @@
+### Add reaction
+POST /api/messages/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+{
+  "content": "Hello there",
+  "conversationId": "bf9a8dad-67b1-4937-a25b-cbbdd2b6012d"
+}
+
+<> 2025-06-15T141226.200.json
+
+### Get all message reactions
+GET /api/messages/reactions/24973fb0-5ff0-427a-b7b0-07715f8c60fa HTTP/1.1
+Authorization: Bearer {{token}}
+Host: localhost:5004
+

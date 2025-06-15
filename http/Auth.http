@@ -1,0 +1,42 @@
+### Login with Miha
+POST /api/Auth/login HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwYzM2NTQzNy04NWRjLTQxNzQtYWE5Yy01ZDdhZjIxYTQ5NWQiLCJlbWFpbCI6Im1paGFAbWFpbC5jb20iLCJqdGkiOiI4YmNkNzNhZS04YTEzLTQ5YmQtOGQzZC02YzE0Yzc4MjZlYTIiLCJleHAiOjE3NDkzMTc5OTIsImlzcyI6IlJldHJvLkFQSSIsImF1ZCI6IlJldHJvLkFQSSJ9.4gnQ-irUQbc1dEZJb-mox3-Ceq6OnXILy4YCQn7D7XE
+Host: localhost:5004
+
+{
+  "email": "miha@mail.com",
+  "password": "111111"
+}
+
+<> 2025-06-15T140649.200.json
+
+
+### Login with Dimon
+POST /api/Auth/login HTTP/1.1
+Content-Type: application/json
+Host: localhost:5004
+
+{
+  "email": "dimon@gmail.com",
+  "password": "111111"
+}
+
+
+### Register
+POST /api/Auth/register HTTP/1.1
+Content-Type: application/json
+Host: localhost:5004
+
+{
+  "email": "dimon@gmail.com",
+  "password": "111111",
+  "username": "dimon"
+}
+
+### Me
+GET /api/Auth/me HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Host: localhost:5004
+

@@ -1,0 +1,35 @@
+# Conversations:
+
+### Create conversation
+POST /api/conversations HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+{
+  "title": "Chat with John",
+  "participantUserIds": [
+    "62345ed2-a9e0-491f-8c93-09f7f8216266",
+    "0c365437-85dc-4174-aa9c-5d7af21a495d"
+  ]
+}
+
+### Get all user conversations
+GET /api/conversations HTTP/1.1
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+<> 2025-06-15T141127.200.json
+
+
+### Get specific conversation
+GET /api/conversations/bf9a8dad-67b1-4937-a25b-cbbdd2b6012d HTTP/1.1
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
+
+### Get Specific user conversation - with different user id
+GET /api/conversations/bf9a8dad-67b1-4937-a25b-cbbdd2b6012d HTTP/1.1
+Authorization: Bearer {{token}}
+Host: localhost:5004
+
