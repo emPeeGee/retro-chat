@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Retro.Application.DTOs;
 using Retro.Application.Interfaces;
-using Retro.Domain;
+using Retro.Domain.Entities;
 
 namespace Retro.Infrastructure.Services;
 
@@ -15,13 +15,13 @@ public class MessageService : IMessageService
     }
 
 
-    public async Task<Result<MessageDto>> SendMessageAsync(Guid userId, CreateMessageRequest request)
+    public async Task<Result<MessageResponse>> SendMessageAsync(Guid userId, CreateMessageRequest request)
     {
         var isParticipant = await _db.ConversationParticipants
             .AnyAsync(cp => cp.UserId == userId && cp.ConversationId == request.ConversationId);
 
         if (!isParticipant)
-            return Result<MessageDto>.Failure("User is not a participant of the conversation.");
+            return Result<MessageResponse>.Failure("User is not a participant of the conversation.");
 
         var message = new Message
         {
@@ -34,7 +34,7 @@ public class MessageService : IMessageService
         _db.Messages.Add(message);
         await _db.SaveChangesAsync();
 
-        var messageDto = new MessageDto
+        var messageDto = new MessageResponse
         {
             Id = message.Id,
             Content = message.Content,
@@ -44,16 +44,16 @@ public class MessageService : IMessageService
             SentAt = message.SentAt
         };
 
-        return Result<MessageDto>.Success(messageDto);
+        return Result<MessageResponse>.Success(messageDto);
     }
 
-    public async Task<Result<List<MessageDto>>> GetMessagesAsync(Guid userId, Guid conversationId)
+    public async Task<Result<List<MessageResponse>>> GetMessagesAsync(Guid userId, Guid conversationId)
     {
         var isParticipant = await _db.ConversationParticipants
             .AnyAsync(cp => cp.UserId == userId && cp.ConversationId == conversationId);
 
         if (!isParticipant)
-            return Result<List<MessageDto>>.Failure("Access denied.");
+            return Result<List<MessageResponse>>.Failure("Access denied.");
 
         var messages = await _db.Messages
             .Include(m => m.Reactions)
@@ -61,7 +61,7 @@ public class MessageService : IMessageService
             .OrderBy(m => m.SentAt)
             .ToListAsync();
 
-        var messageDtos = messages.Select(m => new MessageDto
+        var messageDtos = messages.Select(m => new MessageResponse
         {
             Id = m.Id,
             Content = m.Content,
@@ -71,7 +71,7 @@ public class MessageService : IMessageService
             SentAt = m.SentAt,
             EditedAt = m.EditedAt,
             IsDeleted = m.IsDeleted,
-            Reactions = m.Reactions.Select(r => new MessageReactionDto
+            Reactions = m.Reactions.Select(r => new MessageReactionResponse
             {
                 Id = r.Id,
                 EmojiReactionId = r.EmojiReactionId,
@@ -81,21 +81,21 @@ public class MessageService : IMessageService
             }).ToList()
         }).ToList();
 
-        return Result<List<MessageDto>>.Success(messageDtos);
+        return Result<List<MessageResponse>>.Success(messageDtos);
     }
 
-    public async Task<Result<MessageDto>> EditMessageAsync(Guid userId, EditMessageRequest request)
+    public async Task<Result<MessageResponse>> EditMessageAsync(Guid userId, EditMessageRequest request)
     {
         var message = await _db.Messages.FindAsync(request.MessageId);
 
         if (message == null)
-            return Result<MessageDto>.Failure("Message not found.");
+            return Result<MessageResponse>.Failure("Message not found.");
 
         if (message.SenderId != userId)
-            return Result<MessageDto>.Failure("You are not allowed to edit this message.");
+            return Result<MessageResponse>.Failure("You are not allowed to edit this message.");
 
         if ((DateTime.UtcNow - message.SentAt).TotalMinutes > 15)
-            return Result<MessageDto>.Failure("You can only edit a message within 15 minutes of sending.");
+            return Result<MessageResponse>.Failure("You can only edit a message within 15 minutes of sending.");
 
         // Preserve original
         message.OriginalContent ??= message.Content;
@@ -104,7 +104,7 @@ public class MessageService : IMessageService
 
         await _db.SaveChangesAsync();
 
-        return Result<MessageDto>.Success(new MessageDto
+        return Result<MessageResponse>.Success(new MessageResponse
         {
             Id = message.Id,
             Content = message.Content,
@@ -118,15 +118,15 @@ public class MessageService : IMessageService
     }
 
 
-    public async Task<Result<MessageDto>> DeleteMessageAsync(Guid userId, Guid messageId)
+    public async Task<Result<MessageResponse>> DeleteMessageAsync(Guid userId, Guid messageId)
     {
         var message = await _db.Messages.FindAsync(messageId);
 
         if (message == null || message.IsDeleted)
-            return Result<MessageDto>.Failure("Message not found.");
+            return Result<MessageResponse>.Failure("Message not found.");
 
         if (message.SenderId != userId)
-            return Result<MessageDto>.Failure("You are not allowed to delete this message.");
+            return Result<MessageResponse>.Failure("You are not allowed to delete this message.");
 
         message.IsDeleted = true;
         message.OriginalContent = message.Content;
@@ -135,7 +135,7 @@ public class MessageService : IMessageService
 
         await _db.SaveChangesAsync();
 
-        return Result<MessageDto>.Success(new MessageDto
+        return Result<MessageResponse>.Success(new MessageResponse
         {
             Id = message.Id,
             Content = message.Content,
@@ -148,23 +148,24 @@ public class MessageService : IMessageService
     }
 
 
-    public async Task<Result<MessageReactionDto>> AddReactionAsync(Guid userId, CreateMessageReactionRequest request)
+    public async Task<Result<MessageReactionResponse>> AddReactionAsync(Guid userId,
+        CreateMessageReactionRequest request)
     {
         var message = await _db.Messages
             .FirstOrDefaultAsync(m => m.Id == request.MessageId);
 
         if (message == null)
-            return Result<MessageReactionDto>.Failure("Message not found.");
+            return Result<MessageReactionResponse>.Failure("Message not found.");
 
         var isParticipant = await _db.ConversationParticipants
             .AnyAsync(cp => cp.UserId == userId && cp.ConversationId == message.ConversationId);
 
         if (!isParticipant)
-            return Result<MessageReactionDto>.Failure("User is not a participant in this conversation.");
+            return Result<MessageReactionResponse>.Failure("User is not a participant in this conversation.");
 
         var reactionType = await _db.EmojiReactions.FindAsync(request.ReactionId);
         if (reactionType == null)
-            return Result<MessageReactionDto>.Failure("Invalid reaction type.");
+            return Result<MessageReactionResponse>.Failure("Invalid reaction type.");
 
         var existingReaction = await _db.MessageReactions
             .FirstOrDefaultAsync(r => r.MessageId == request.MessageId && r.UserId == userId);
@@ -187,7 +188,7 @@ public class MessageService : IMessageService
         }
 
         await _db.SaveChangesAsync();
-        return Result<MessageReactionDto>.Success(new MessageReactionDto
+        return Result<MessageReactionResponse>.Success(new MessageReactionResponse
         {
             Id = existingReaction?.Id ?? Guid.NewGuid(),
             UserId = userId,
@@ -198,23 +199,23 @@ public class MessageService : IMessageService
     }
 
 
-    public async Task<Result<List<MessageReactionDto>>> GetReactionsAsync(Guid userId, Guid messageId)
+    public async Task<Result<List<MessageReactionResponse>>> GetReactionsAsync(Guid userId, Guid messageId)
     {
         var message = await _db.Messages
             .FirstOrDefaultAsync(m => m.Id == messageId);
 
         if (message == null)
-            return Result<List<MessageReactionDto>>.Failure("Message not found.");
+            return Result<List<MessageReactionResponse>>.Failure("Message not found.");
 
         var isParticipant = await _db.ConversationParticipants
             .AnyAsync(cp => cp.UserId == userId && cp.ConversationId == message.ConversationId);
 
         if (!isParticipant)
-            return Result<List<MessageReactionDto>>.Failure("User is not a participant in this conversation.");
+            return Result<List<MessageReactionResponse>>.Failure("User is not a participant in this conversation.");
 
         var reactions = await _db.MessageReactions
             .Where(r => r.MessageId == messageId)
-            .Select(r => new MessageReactionDto
+            .Select(r => new MessageReactionResponse
             {
                 Id = r.Id,
                 UserId = r.UserId,
@@ -224,6 +225,6 @@ public class MessageService : IMessageService
             })
             .ToListAsync();
 
-        return Result<List<MessageReactionDto>>.Success(reactions);
+        return Result<List<MessageReactionResponse>>.Success(reactions);
     }
 }

@@ -1,4 +1,4 @@
-namespace Retro.Domain;
+namespace Retro.Domain.Entities;
 
 public class MessageReaction
 {
@@ -8,9 +8,7 @@ public class MessageReaction
     public int EmojiReactionId { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    public Message Message { get; set; } 
+    public Message Message { get; set; }
     public User User { get; set; }
-    public EmojiReaction EmojiReaction { get; set; } 
+    public EmojiReaction EmojiReaction { get; set; }
 }
-
-

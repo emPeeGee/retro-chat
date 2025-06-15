@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Retro.Application.DTOs;
 using Retro.Application.Interfaces;
-using Retro.Domain;
+using Retro.Domain.Entities;
 
 namespace Retro.Infrastructure.Services;
 
@@ -82,7 +82,7 @@ public class ConversationService : IConversationService
         {
             Id = c.Id,
             Title = c.Name,
-            Participants = c.Participants.Select(p => new ParticipantDto
+            Participants = c.Participants.Select(p => new ParticipantResponse
             {
                 Id = p.User.Id,
                 Email = p.User.Email
@@ -110,7 +110,7 @@ public class ConversationService : IConversationService
         {
             Id = conversation.Id,
             Title = conversation.Name,
-            Participants = conversation.Participants.Select(p => new ParticipantDto
+            Participants = conversation.Participants.Select(p => new ParticipantResponse
             {
                 Id = p.User.Id,
                 Email = p.User.Email

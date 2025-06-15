@@ -1,6 +1,6 @@
 namespace Retro.Application.DTOs;
 
-public class MessageReactionDto
+public class MessageReactionResponse
 {
     public Guid Id { get; set; }
     public Guid MessageId { get; set; }

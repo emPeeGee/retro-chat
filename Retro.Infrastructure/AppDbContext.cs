@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Retro.Domain;
+using Retro.Domain.Entities;
 
 namespace Retro.Infrastructure;
 

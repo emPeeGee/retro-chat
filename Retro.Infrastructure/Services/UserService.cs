@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Retro.Application.Interfaces;
 using Retro.Application.Models;
-using Retro.Domain;
+using Retro.Domain.Entities;
 
 namespace Retro.Infrastructure.Services;
 
@@ -18,21 +18,21 @@ public class UserService : IUserService
         _tokenService = tokenService;
     }
 
-    public async Task<Result<Guid>> RegisterUserAsync(UserRegisterDto dto)
+    public async Task<Result<Guid>> RegisterUserAsync(UserRegisterRequest request)
     {
-        var exists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+        var exists = await _context.Users.AnyAsync(u => u.Email == request.Email);
         if (exists)
             return Result<Guid>.Failure("Email is already registered.");
 
         var user = new User
         {
             Id = Guid.NewGuid(),
-            Email = dto.Email,
-            Username = dto.Username,
+            Email = request.Email,
+            Username = request.Username,
             CreatedAt = DateTime.UtcNow
         };
 
-        user.PasswordHash = _passwordService.HashPassword(dto.Password);
+        user.PasswordHash = _passwordService.HashPassword(request.Password);
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
@@ -40,13 +40,13 @@ public class UserService : IUserService
         return Result<Guid>.Success(user.Id);
     }
 
-    public async Task<Result<string>> LoginUserAsync(UserLoginDto dto)
+    public async Task<Result<string>> LoginUserAsync(UserLoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user is null)
             return Result<string>.Failure("Invalid credentials");
 
-        var result = _passwordService.VerifyPassword(user.PasswordHash, dto.Password);
+        var result = _passwordService.VerifyPassword(user.PasswordHash, request.Password);
         if (!result)
             return Result<string>.Failure("Invalid credentials");
 

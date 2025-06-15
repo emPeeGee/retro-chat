@@ -1,4 +1,4 @@
-namespace Retro.Domain;
+namespace Retro.Domain.Entities;
 
 public class Conversation
 {
