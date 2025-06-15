@@ -5,7 +5,7 @@ Content-Type: application/json
 Host: localhost:5004
 
 {
-  "content": "Hello 2",
+  "content": "Hello 3",
   "conversationId": "{{convMihDim}}"
 }
 

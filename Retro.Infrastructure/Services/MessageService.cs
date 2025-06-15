@@ -81,6 +81,13 @@ public class MessageService : IMessageService
             .ToListAsync();
 
 
+        var messageIds = messages.Select(m => m.Id).ToList();
+
+        var allStatuses = await _db.MessageStatuses
+            .Where(ms => messageIds.Contains(ms.MessageId))
+            .ToListAsync();
+
+
         // Update statuses to Delivered on fetching it (if not yet Read)
         var messageStatuses = await _db.MessageStatuses
             .Where(ms => ms.UserId == userId &&
@@ -98,8 +105,17 @@ public class MessageService : IMessageService
 
         var messageDtos = messages.Select(m =>
         {
-            var status = messageStatuses
-                .FirstOrDefault(ms => ms.MessageId == m.Id)?.Status.ToString() ?? "Unknown";
+            // var status = messageStatuses
+            //     .FirstOrDefault(ms => ms.MessageId == m.Id)?.Status.ToString() ?? "Unknown";
+
+
+            var statuses = allStatuses
+                .Where(ms => ms.MessageId == m.Id)
+                .Select(ms => new MessageStatusResponse
+                {
+                    UserId = ms.UserId,
+                    Status = ms.Status.ToString()
+                }).ToList();
 
             return new MessageResponse
             {
@@ -111,7 +127,7 @@ public class MessageService : IMessageService
                 SentAt = m.SentAt,
                 EditedAt = m.EditedAt,
                 IsDeleted = m.IsDeleted,
-                Status = status,
+                Statuses = statuses,
                 Reactions = m.Reactions.Select(r => new MessageReactionResponse
                 {
                     Id = r.Id,
