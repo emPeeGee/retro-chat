@@ -22,6 +22,16 @@ public class ConversationService : IConversationService
         if (request.ParticipantUserIds == null || !request.ParticipantUserIds.Any())
             return Result<CreateConversationResponse>.Failure("At least one participant is required.");
 
+
+        // Get all real users that match requested ParticipantIds
+        var existingUserIds = await _db.Users
+            .Where(u => request.ParticipantUserIds.Contains(u.Id))
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        if (existingUserIds.Count != request.ParticipantUserIds.Count)
+            return Result<CreateConversationResponse>.Failure("One or more participants do not exist.");
+
         // Prevent duplicate direct chat
         if (!request.IsGroup && request.ParticipantUserIds.Count == 1)
         {
@@ -39,9 +49,29 @@ public class ConversationService : IConversationService
                 return Result<CreateConversationResponse>.Failure("Direct conversation already exists.");
         }
 
+
+        // var allUserIds = request.ParticipantUserIds
+        //     .Append(currentUserId)
+        //     .Distinct()
+        //     .ToList();
+        //
+        //
+        // var existingUserIds = await _db.Users
+        //     .Where(u => allUserIds.Contains(u.Id))
+        //     .Select(u => u.Id)
+        //     .ToListAsync();
+        //
+        // var missingUserIds = allUserIds.Except(existingUserIds).ToList();
+        //
+        // if (missingUserIds.Any())
+        //     throw new Exception(
+        //         $"These UserIds do not exist in the database: {string.Join(", ", missingUserIds)}. {string.Join(",  ", existingUserIds)}");
+        //
+        //
+        var conversationId = Guid.NewGuid();
         var conversation = new Conversation
         {
-            Id = Guid.NewGuid(),
+            Id = conversationId,
             IsGroup = request.IsGroup,
             Name = request.IsGroup ? request.Title : null,
             CreatedAt = DateTime.UtcNow,
@@ -50,7 +80,8 @@ public class ConversationService : IConversationService
                 .Distinct()
                 .Select(uid => new ConversationParticipant
                 {
-                    UserId = uid
+                    UserId = uid,
+                    ConversationId = conversationId
                 })
                 .ToList()
         };

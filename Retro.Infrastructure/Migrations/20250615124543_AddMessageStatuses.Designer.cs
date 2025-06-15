@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Retro.Infrastructure;
 
@@ -10,9 +11,11 @@ using Retro.Infrastructure;
 namespace Retro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250615124543_AddMessageStatuses")]
+    partial class AddMessageStatuses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -193,7 +196,7 @@ namespace Retro.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MessageStatuses");
+                    b.ToTable("MessageStatus");
                 });
 
             modelBuilder.Entity("Retro.Domain.Entities.User", b =>

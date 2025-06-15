@@ -15,4 +15,5 @@ public class Message
     public User Sender { get; set; }
     public Conversation Conversation { get; set; }
     public ICollection<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
+    public ICollection<MessageStatus> MessageStatuses { get; set; }
 }

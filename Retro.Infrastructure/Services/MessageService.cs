@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Retro.Application.DTOs;
 using Retro.Application.Interfaces;
 using Retro.Domain.Entities;
+using Retro.Domain.Enums;
 
 namespace Retro.Infrastructure.Services;
 
@@ -32,6 +33,24 @@ public class MessageService : IMessageService
         };
 
         _db.Messages.Add(message);
+
+
+        // Add MessageStatus for all other participants as "Sent"
+        var participantIds = await _db.ConversationParticipants
+            .Where(cp => cp.ConversationId == request.ConversationId && cp.UserId != userId)
+            .Select(cp => cp.UserId)
+            .ToListAsync();
+
+        var messageStatuses = participantIds.Select(pid => new MessageStatus
+        {
+            MessageId = message.Id,
+            UserId = pid,
+            Status = MessageDeliveryStatus.Sent,
+            UpdatedAt = DateTime.UtcNow
+        }).ToList();
+
+        _db.MessageStatuses.AddRange(messageStatuses);
+
         await _db.SaveChangesAsync();
 
         var messageDto = new MessageResponse
@@ -61,24 +80,47 @@ public class MessageService : IMessageService
             .OrderBy(m => m.SentAt)
             .ToListAsync();
 
-        var messageDtos = messages.Select(m => new MessageResponse
+
+        // Update statuses to Delivered on fetching it (if not yet Read)
+        var messageStatuses = await _db.MessageStatuses
+            .Where(ms => ms.UserId == userId &&
+                         ms.Status == MessageDeliveryStatus.Sent &&
+                         messages.Select(m => m.Id).Contains(ms.MessageId))
+            .ToListAsync();
+
+        foreach (var ms in messageStatuses)
         {
-            Id = m.Id,
-            Content = m.Content,
-            OriginalContent = m.OriginalContent,
-            SenderId = m.SenderId,
-            ConversationId = m.ConversationId,
-            SentAt = m.SentAt,
-            EditedAt = m.EditedAt,
-            IsDeleted = m.IsDeleted,
-            Reactions = m.Reactions.Select(r => new MessageReactionResponse
+            ms.Status = MessageDeliveryStatus.Delivered;
+            ms.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync();
+
+        var messageDtos = messages.Select(m =>
+        {
+            var status = messageStatuses
+                .FirstOrDefault(ms => ms.MessageId == m.Id)?.Status.ToString() ?? "Unknown";
+
+            return new MessageResponse
             {
-                Id = r.Id,
-                EmojiReactionId = r.EmojiReactionId,
-                UserId = r.UserId,
-                MessageId = r.MessageId,
-                CreatedAt = r.CreatedAt
-            }).ToList()
+                Id = m.Id,
+                Content = m.Content,
+                OriginalContent = m.OriginalContent,
+                SenderId = m.SenderId,
+                ConversationId = m.ConversationId,
+                SentAt = m.SentAt,
+                EditedAt = m.EditedAt,
+                IsDeleted = m.IsDeleted,
+                Status = status,
+                Reactions = m.Reactions.Select(r => new MessageReactionResponse
+                {
+                    Id = r.Id,
+                    EmojiReactionId = r.EmojiReactionId,
+                    UserId = r.UserId,
+                    MessageId = r.MessageId,
+                    CreatedAt = r.CreatedAt
+                }).ToList()
+            };
         }).ToList();
 
         return Result<List<MessageResponse>>.Success(messageDtos);
@@ -226,5 +268,24 @@ public class MessageService : IMessageService
             .ToListAsync();
 
         return Result<List<MessageReactionResponse>>.Success(reactions);
+    }
+
+
+    public async Task<Result<bool>> MarkMessageAsReadAsync(Guid userId, Guid messageId)
+    {
+        var messageStatus = await _db.MessageStatuses
+            .FirstOrDefaultAsync(ms => ms.UserId == userId && ms.MessageId == messageId);
+
+        if (messageStatus == null)
+            return Result<bool>.Failure("Message status not found.");
+
+        if (messageStatus.Status != MessageDeliveryStatus.Read)
+        {
+            messageStatus.Status = MessageDeliveryStatus.Read;
+            messageStatus.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+
+        return Result<bool>.Success(true);
     }
 }

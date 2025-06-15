@@ -9,8 +9,7 @@ Host: localhost:5004
 {
   "title": "Chat with John",
   "participantUserIds": [
-    "62345ed2-a9e0-491f-8c93-09f7f8216266",
-    "0c365437-85dc-4174-aa9c-5d7af21a495d"
+    "c584930d-16d5-44e3-a340-3f65f41e702f"
   ]
 }
 

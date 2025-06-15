@@ -100,4 +100,17 @@ public class MessagesController : ControllerBase
 
         return Ok(result.Value);
     }
+
+
+    [HttpPost("{id}/read")]
+    public async Task<IActionResult> MarkAsRead(Guid id)
+    {
+        var userId = User.GetUserId();
+        var result = await _messageService.MarkMessageAsReadAsync(userId, id);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok();
+    }
 }

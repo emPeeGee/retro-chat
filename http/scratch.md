@@ -45,3 +45,9 @@ IsSystemMessage	For bot or system-generated messages (e.g. "User joined")
 IsSilent	Messages that don't send notifications
 Mark for later
 Remember in ... (feature)
+
+
+# Admin tool
+   Delete any message.
+   View all users.
+   Ban user from chat.

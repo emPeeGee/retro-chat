@@ -11,4 +11,5 @@ public class MessageResponse
     public DateTime? EditedAt { get; set; }
     public bool IsDeleted { get; set; }
     public List<MessageReactionResponse>? Reactions { get; set; }
+    public string Status { get; set; } = string.Empty;
 }

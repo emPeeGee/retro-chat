@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
 
     public DbSet<MessageReaction> MessageReactions { get; set; }
     public DbSet<EmojiReaction> EmojiReactions { get; set; }
+    public DbSet<MessageStatus> MessageStatuses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,5 +80,19 @@ public class AppDbContext : DbContext
             new EmojiReaction { Id = 4, Name = "Surprised", Emoji = "😮" },
             new EmojiReaction { Id = 5, Name = "Angry", Emoji = "😡" }
         );
+
+
+        modelBuilder.Entity<MessageStatus>()
+            .HasKey(ms => new { ms.MessageId, ms.UserId });
+
+        modelBuilder.Entity<MessageStatus>()
+            .HasOne(ms => ms.Message)
+            .WithMany(m => m.MessageStatuses)
+            .HasForeignKey(ms => ms.MessageId);
+
+        modelBuilder.Entity<MessageStatus>()
+            .HasOne(ms => ms.User)
+            .WithMany()
+            .HasForeignKey(ms => ms.UserId);
     }
 }

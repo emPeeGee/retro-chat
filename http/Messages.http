@@ -5,12 +5,12 @@ Content-Type: application/json
 Host: localhost:5004
 
 {
-  "content": "Hello there",
-  "conversationId": "bf9a8dad-67b1-4937-a25b-cbbdd2b6012d"
+  "content": "Hello 2",
+  "conversationId": "{{convMihDim}}"
 }
 
 ### Get all messages for conv
-GET /api/conversations HTTP/1.1
+GET /api/messages/{{convMihDim}} HTTP/1.1
 Authorization: Bearer {{token}}
 Host: localhost:5004
 
@@ -34,4 +34,15 @@ Host: localhost:5004
 {
   "messageId": "187ea9c5-6a8d-4514-ba8c-1fa8e7d47033",
   "newContent": "222222bbbbbb"
+}
+
+### Read the message
+POST /api/messages/1429a6fc-dfed-4755-a07b-206705848c8e/read HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Host: localhost:5004
+
+{
+  "content": "Hello 2",
+  "conversationId": "{{convMihDim}}"
 }

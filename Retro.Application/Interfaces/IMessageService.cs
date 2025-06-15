@@ -12,4 +12,7 @@ public interface IMessageService
 
     Task<Result<MessageReactionResponse>> AddReactionAsync(Guid userId, CreateMessageReactionRequest request);
     Task<Result<List<MessageReactionResponse>>> GetReactionsAsync(Guid userId, Guid messageId);
+
+
+    Task<Result<bool>> MarkMessageAsReadAsync(Guid userId, Guid messageId);
 }
