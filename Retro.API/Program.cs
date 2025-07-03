@@ -8,6 +8,8 @@ using Retro.Application.Interfaces;
 using Retro.Infrastructure;
 using Retro.Infrastructure.Services;
 
+var retroAllowSpecificOrigins = "_retroAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -18,6 +20,13 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 
+
+builder.Services.AddCors(options =>
+{
+    // TODO: limit headers
+    options.AddPolicy(retroAllowSpecificOrigins,
+        policy => { policy.WithOrigins("http://localhost:4200").AllowAnyHeader(); });
+});
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));
@@ -58,6 +67,7 @@ builder.Services.AddOpenApi();
 
 
 var app = builder.Build();
+app.UseCors(retroAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

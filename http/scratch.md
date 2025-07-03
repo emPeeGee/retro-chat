@@ -51,3 +51,6 @@ Remember in ... (feature)
    Delete any message.
    View all users.
    Ban user from chat.
+   
+
+# message status - Not the best solution, should mark each message as read per message
