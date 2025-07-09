@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Retro.Application.DTOs;
 using Retro.Application.Interfaces;
 using Retro.Application.Models;
 using Retro.Domain.Entities;
@@ -53,5 +54,23 @@ public class UserService : IUserService
         var jwt = _tokenService.GenerateJwtToken(user.Id, user.Email);
 
         return Result<string>.Success(jwt);
+    }
+
+    public async Task<UserResponse?> GetCurrentUserAsync(Guid userId)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            return null;
+
+        return new UserResponse
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            CreatedAt = user.CreatedAt
+        };
     }
 }
